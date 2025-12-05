@@ -1,15 +1,36 @@
-import java.io.IOException;
-import java.net.Socket;
+import java.io.*;
+import java.net.*;
 
 
 public class Client {
     public static void main(String[] args) throws IOException {
-        String host = "127.0.0.1";
-        int port = 12345;
+        Socket socket = new Socket("127.0.0.1", 12345);
 
 
-        Socket socket = new Socket(host, port);
-        System.out.println("Connected to server");
+        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
+
+
+        Thread reader = new Thread(() -> {
+            try {
+                String msg;
+                while ((msg = in.readLine()) != null) {
+                    System.out.println("Server: " + msg);
+                }
+            } catch (IOException ignored) {}
+        });
+
+
+        reader.start();
+
+
+        String msg;
+        while ((msg = console.readLine()) != null) {
+            out.write(msg + "\n");
+            out.flush();
+            if (msg.equals("/quit")) break;
+        }
 
 
         socket.close();

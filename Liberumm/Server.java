@@ -17,18 +17,26 @@ public class Server {
 
         BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
-
-
         BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
 
 
-        while (true) {
-            System.out.print("Server > ");
-            String msg = console.readLine();
+        Thread reader = new Thread(() -> {
+            try {
+                String msg;
+                while ((msg = in.readLine()) != null) {
+                    System.out.println("Client: " + msg);
+                }
+            } catch (IOException ignored) {}
+        });
+
+
+        reader.start();
+
+
+        String msg;
+        while ((msg = console.readLine()) != null) {
             out.write(msg + "\n");
             out.flush();
-
-
             if (msg.equals("/quit")) break;
         }
 
