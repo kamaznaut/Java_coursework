@@ -19,12 +19,16 @@ public class Server {
         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
         BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
 
+        String clientName = in.readLine();
+        final String name = (clientName == null || clientName.isEmpty()) ? "Client" : clientName;
+        System.out.println("Client name: " + name);
+
 
         Thread reader = new Thread(() -> {
             try {
                 String msg;
                 while ((msg = in.readLine()) != null) {
-                    System.out.println("Client: " + msg);
+                    System.out.println(clientName + ": " + msg);
                 }
             } catch (IOException ignored) {}
         });
