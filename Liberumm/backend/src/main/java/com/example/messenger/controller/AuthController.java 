@@ -1,0 +1,14 @@
+package com.example.messenger.controller;
+
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api")
+public class AuthController {
+
+    @PostMapping("/login")
+    public String login(@RequestParam String nickname) {
+        System.out.println("Login request: " + nickname);
+        return "Hello, " + nickname;
+    }
+}
