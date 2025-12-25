@@ -1,33 +1,33 @@
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.Socket;
+import java.io.*;
+import java.net.*;
 import java.util.Scanner;
 
 public class Client {
-
     public static void main(String[] args) {
-        String SERVER_IP = "192.168.0.10"; //  IP СЕРВЕРА
-        int PORT = 1234;
+        try (Socket socket = new Socket("127.0.0.1", 1234)) {
 
-        try (Socket socket = new Socket(SERVER_IP, PORT)) {
+            // создаю отдельный поток для прослушивания сервера
+            // чтобы чтение сообщений не мешало нам печатать свои
+            new Thread(() -> {
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+                    String serverMsg;
+                    // цикл постоянно ждет строку от сервера
+                    while ((serverMsg = in.readLine()) != null) {
+                        System.out.println("\nСервер: " + serverMsg);
+                        System.out.print("> "); // просто визуальный маркер ввода
+                    }
+                } catch (IOException e) {
+                    System.out.println("Соединение потеряно.");
+                }
+            }).start();
 
-            PrintWriter out = new PrintWriter(
-                    socket.getOutputStream(), true
-            );
-
+            // поток вывода (пишем на сервер)
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
             Scanner scanner = new Scanner(System.in);
 
-            System.out.print("Enter your name: ");
-            String name = scanner.nextLine();
-
-            //отправляем серверу имя
-            out.println(name);
-
-            System.out.println("Connected. Type messages:");
-
             while (true) {
-                String msg = scanner.nextLine();
-                out.println(msg);
+                String myMsg = scanner.nextLine(); // ждем ввод пользователя
+                out.println(myMsg); // отправляем на сервер
             }
 
         } catch (IOException e) {
